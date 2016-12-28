@@ -1,0 +1,19 @@
+﻿{
+  "supports": {},
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "Ninject": "4.0.0-beta-0134",
+    "xunit": "2.2.0-beta4-build3444",
+    "dotnet-test-xunit": {
+      "version": "2.2.0-preview2-build1029",
+      "target": "package"
+    },
+    "FluentAssertions": "4.18.0",
+    "Ninject.Extensions.ContextPreservation": "1.0.0-*"
+  },
+  "frameworks": {
+    "net451": {
+    }
+  },
+  "testRunner": "xunit"
+}

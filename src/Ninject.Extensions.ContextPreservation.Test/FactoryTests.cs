@@ -22,7 +22,7 @@ namespace Ninject.Extensions.ContextPreservation
     using System;
     using FluentAssertions;
     using Ninject.Extensions.ContextPreservation.Fakes;
-    using Ninject.Extensions.Factory;
+    //using Ninject.Extensions.Factory;
     using Xunit;
 
     /// <summary>
@@ -58,31 +58,31 @@ namespace Ninject.Extensions.ContextPreservation
         /// <summary>
         /// Verifies that the context is preserved for ToFactory
         /// </summary>
-        [Fact]
-        public void FactoryContextIsPreserved()
-        {
-            this.kernel.Bind<IWeapon>().To<Dagger>().WhenInjectedInto<Village>();
-            this.kernel.Bind<IWeaponFactory>().ToFactory();
+        //[Fact]
+        //public void FactoryContextIsPreserved()
+        //{
+        //    this.kernel.Bind<IWeapon>().To<Dagger>().WhenInjectedInto<Village>();
+        //    this.kernel.Bind<IWeaponFactory>().ToFactory();
             
-            var village = this.kernel.Get<Village>();
-            var weapon = village.GetWeapon();
+        //    var village = this.kernel.Get<Village>();
+        //    var weapon = village.GetWeapon();
 
-            weapon.Should().BeOfType<Dagger>();
-        }
+        //    weapon.Should().BeOfType<Dagger>();
+        //}
 
         /// <summary>
         /// Whens the using factory directly_ must not throw.
         /// </summary>
-        [Fact]
-        public void FactoryCanBeResolvedDirectly()
-        {
-            this.kernel.Bind<IWeapon>().To<Dagger>();
-            this.kernel.Bind<IWeaponFactory>().ToFactory();
+        //[Fact]
+        //public void FactoryCanBeResolvedDirectly()
+        //{
+        //    this.kernel.Bind<IWeapon>().To<Dagger>();
+        //    this.kernel.Bind<IWeaponFactory>().ToFactory();
 
-            var factory = this.kernel.Get<IWeaponFactory>();
+        //    var factory = this.kernel.Get<IWeaponFactory>();
 
-            factory.CreateWeapon().Should().BeOfType<Dagger>();
-        }
+        //    factory.CreateWeapon().Should().BeOfType<Dagger>();
+        //}
 #endif
 
         /// <summary>

@@ -17,6 +17,8 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
+using System.Reflection;
+
 namespace Ninject.Extensions.ContextPreservation
 {
     using System;
@@ -36,8 +38,8 @@ namespace Ninject.Extensions.ContextPreservation
         /// </summary>
         public override void Load()
         {
-            this.Kernel.Components.Add<IActivationStrategy, ContextPreservingResolutionRootActivationStrategy>();
-            this.Rebind<IResolutionRoot>().To<ContextPreservingResolutionRoot>();
+            this.KernelConfiguration.Components.Add<IActivationStrategy, ContextPreservingResolutionRootActivationStrategy>();
+            this.Rebind<IResolutionRoot>().To<ContextPreservingResolutionRoot>().When(req => true);
             this.Rebind<Func<IContext, IResolutionRoot>>().ToMethod(ctx => GetContextPreservingResolutionRoot);
         }
 
@@ -50,7 +52,7 @@ namespace Ninject.Extensions.ContextPreservation
         {
 #if !NET_35 && !NETCF && !SILVERLIGHT_20 && !SILVERLIGHT_30 && !WINDOWS_PHONE
             if (context.Request.ParentRequest != null &&
-                context.Request.ParentRequest.Service.IsGenericType &&
+                context.Request.ParentRequest.Service.GetTypeInfo().IsGenericType &&
                 context.Request.ParentRequest.Service.GetGenericTypeDefinition() == typeof(Lazy<>))
             {
                 context = context.Request.ParentContext;

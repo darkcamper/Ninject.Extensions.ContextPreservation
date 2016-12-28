@@ -75,6 +75,11 @@ namespace Ninject.Extensions.ContextPreservation
             this.DefineParentContext(context, target);
         }
 
+        public void Inject(object instance, params IParameter[] parameters)
+        {
+            context.Kernel.Inject(instance, parameters);
+        }
+
         /// <summary>
         /// Determines whether this instance can resolve the specified request.
         /// </summary>

@@ -17,6 +17,8 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
+using System.Reflection;
+
 namespace Ninject.Extensions.ContextPreservation
 {
     using System;
@@ -128,7 +130,7 @@ namespace Ninject.Extensions.ContextPreservation
         /// <returns>The type of the service.</returns>
         private static Type GetServiceType(Type service, IContext context)
         {
-            if (service.IsGenericTypeDefinition)
+            if (service.GetTypeInfo().IsGenericTypeDefinition)
             {
                 service = service.MakeGenericType(context.GenericArguments);
             }

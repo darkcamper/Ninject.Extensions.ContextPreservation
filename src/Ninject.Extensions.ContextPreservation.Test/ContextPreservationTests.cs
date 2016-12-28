@@ -17,6 +17,15 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
+using System.Linq;
+using Ninject.Activation;
+using Ninject.Activation.Caching;
+using Ninject.Infrastructure;
+using Ninject.Planning;
+using Ninject.Planning.Bindings;
+using Ninject.Planning.Bindings.Resolvers;
+using Ninject.Selection;
+
 namespace Ninject.Extensions.ContextPreservation
 {
     using System;
@@ -36,20 +45,23 @@ namespace Ninject.Extensions.ContextPreservation
         /// <summary>
         /// The kernel used in the tests.
         /// </summary>
-        private readonly IKernel kernel;
+        private readonly IKernelConfiguration kernelConfiguration;
+
+        private IReadOnlyKernel kernel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContextPreservationTests"/> class.
         /// </summary>
         public ContextPreservationTests()
         {
-            this.kernel = new StandardKernel(new NinjectSettings
-            {
-#if !SILVERLIGHT
-                LoadExtensions = false
-#endif
-            });
-            this.kernel.Load(new ContextPreservationModule());
+          this.kernelConfiguration = new KernelConfiguration(new NinjectSettings
+          {
+              LoadExtensions = false,
+              
+          });
+
+          kernelConfiguration.Load(new ContextPreservationModule());
+        
         }
 
         /// <summary>
@@ -66,9 +78,10 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreserved()
         {
-            this.kernel.Bind<WeaponFactory>().ToSelf();
-            this.kernel.Bind<IWeapon>().To<Sword>().WhenInjectedInto<WeaponFactory>();
-            this.kernel.Bind<IJewel>().To<RedJewel>();
+            this.kernelConfiguration.Bind<WeaponFactory>().ToSelf();
+            this.kernelConfiguration.Bind<IWeapon>().To<Sword>().WhenInjectedInto<WeaponFactory>();
+            this.kernelConfiguration.Bind<IJewel>().To<RedJewel>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var factory = this.kernel.Get<WeaponFactory>();
             var child = factory.CreateWeapon();
@@ -83,8 +96,9 @@ namespace Ninject.Extensions.ContextPreservation
         public void ParametersArePassed()
         {
             const string Name = "TheName";
-            this.kernel.Bind<WeaponFactory>().ToSelf();
-            this.kernel.Bind<INamedWeapon>().To<NamedDagger>();
+            this.kernelConfiguration.Bind<WeaponFactory>().ToSelf();
+            this.kernelConfiguration.Bind<INamedWeapon>().To<NamedDagger>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var factory = this.kernel.Get<WeaponFactory>();
             var child = factory.CreateNamedWeapon(Name);
@@ -99,9 +113,10 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void TargetIsResolutionRootOwner()
         {
-            this.kernel.Bind<WeaponFactory>().ToSelf().Named("Warrior");
-            this.kernel.Bind<IWeapon>().To<Sword>().WhenParentNamed("Warrior");
-            this.kernel.Bind<IJewel>().To<RedJewel>();
+            this.kernelConfiguration.Bind<WeaponFactory>().ToSelf().Named("Warrior");
+            this.kernelConfiguration.Bind<IWeapon>().To<Sword>().WhenParentNamed("Warrior");
+            this.kernelConfiguration.Bind<IJewel>().To<RedJewel>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var factory = this.kernel.Get<WeaponFactory>();
             var child = factory.CreateWeapon();
@@ -116,9 +131,10 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodWithoutArguments()
         {
-            this.kernel.Bind<Warrior>().ToSelf();
-            this.kernel.Bind<IWeapon>().ToMethod(ctx => ctx.ContextPreservingGet<Dagger>());
-            this.kernel.Bind<Dagger>().ToSelf().WhenInjectedInto<Warrior>();
+            this.kernelConfiguration.Bind<Warrior>().ToSelf();
+            this.kernelConfiguration.Bind<IWeapon>().ToMethod(ctx => ctx.ContextPreservingGet<Dagger>());
+            this.kernelConfiguration.Bind<Dagger>().ToSelf().WhenInjectedInto<Warrior>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<Warrior>();
 
@@ -133,12 +149,13 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodWithName()
         {
-            this.kernel.Bind<Warrior>().ToSelf();
-            this.kernel.Bind<IWeapon>().ToMethod(ctx => ctx.ContextPreservingGet<NamedDagger>("1"));
-            this.kernel.Bind<NamedDagger>().ToSelf()
+            this.kernelConfiguration.Bind<Warrior>().ToSelf();
+            this.kernelConfiguration.Bind<IWeapon>().ToMethod(ctx => ctx.ContextPreservingGet<NamedDagger>("1"));
+            this.kernelConfiguration.Bind<NamedDagger>().ToSelf()
                        .WhenInjectedInto<Warrior>().Named("1").WithConstructorArgument("name", "1");
-            this.kernel.Bind<NamedDagger>().ToSelf()
+            this.kernelConfiguration.Bind<NamedDagger>().ToSelf()
                        .WhenInjectedInto<Warrior>().Named("2").WithConstructorArgument("name", "2");
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<Warrior>();
 
@@ -149,9 +166,10 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodForClosedGenericTypesDefinedByGenericArgument()
         {
-            this.kernel.Bind<ParentWithOpenGeneric>().ToSelf();
-            this.kernel.Bind<IOpenGeneric<int>>().ToMethod(ctx => ctx.ContextPreservingGet<OpenGeneric<int>>())
+            this.kernelConfiguration.Bind<ParentWithOpenGeneric>().ToSelf();
+            this.kernelConfiguration.Bind<IOpenGeneric<int>>().ToMethod(ctx => ctx.ContextPreservingGet<OpenGeneric<int>>())
                 .WhenInjectedInto<ParentWithOpenGeneric>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<ParentWithOpenGeneric>();
 
@@ -161,9 +179,10 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodForClosedGenericTypesDefinedByType()
         {
-            this.kernel.Bind<ParentWithOpenGeneric>().ToSelf();
-            this.kernel.Bind(typeof(IOpenGeneric<int>)).ToMethod(ctx => ctx.ContextPreservingGet(typeof(OpenGeneric<int>)))
+            this.kernelConfiguration.Bind<ParentWithOpenGeneric>().ToSelf();
+            this.kernelConfiguration.Bind(typeof(IOpenGeneric<int>)).ToMethod(ctx => ctx.ContextPreservingGet(typeof(OpenGeneric<int>)))
                 .WhenInjectedInto<ParentWithOpenGeneric>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<ParentWithOpenGeneric>();
 
@@ -173,9 +192,10 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodForOpenGenericTypes()
         {
-            this.kernel.Bind<ParentWithOpenGeneric>().ToSelf();
-            this.kernel.Bind(typeof(IOpenGeneric<>)).ToMethod(ctx => ctx.ContextPreservingGet(typeof(OpenGeneric<>)))
+            this.kernelConfiguration.Bind<ParentWithOpenGeneric>().ToSelf();
+            this.kernelConfiguration.Bind(typeof(IOpenGeneric<>)).ToMethod(ctx => ctx.ContextPreservingGet(typeof(OpenGeneric<>)))
                 .WhenInjectedInto<ParentWithOpenGeneric>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<ParentWithOpenGeneric>();
 
@@ -190,12 +210,13 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodWithConstraint()
         {
-            this.kernel.Bind<Warrior>().ToSelf();
-            this.kernel.Bind<IWeapon>().ToMethod(ctx => ctx.ContextPreservingGet<NamedDagger>(m => m.Has("2")));
-            this.kernel.Bind<NamedDagger>().ToSelf()
+            this.kernelConfiguration.Bind<Warrior>().ToSelf();
+            this.kernelConfiguration.Bind<IWeapon>().ToMethod(ctx => ctx.ContextPreservingGet<NamedDagger>(m => m.Has("2")));
+            this.kernelConfiguration.Bind<NamedDagger>().ToSelf()
                        .WhenInjectedInto<Warrior>().WithMetadata("1", null).WithConstructorArgument("name", "1");
-            this.kernel.Bind<NamedDagger>().ToSelf()
+            this.kernelConfiguration.Bind<NamedDagger>().ToSelf()
                        .WhenInjectedInto<Warrior>().WithMetadata("2", null).WithConstructorArgument("name", "2");
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<Warrior>();
 
@@ -211,13 +232,14 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextPreservingGetExtensionMethodWithParameters()
         {
-            this.kernel.Bind<Warrior>().ToSelf();
-            this.kernel.Bind<IWeapon>().ToMethod(
+            this.kernelConfiguration.Bind<Warrior>().ToSelf();
+            this.kernelConfiguration.Bind<IWeapon>().ToMethod(
                 ctx => ctx.ContextPreservingGet<NamedSword>(
                             new ConstructorArgument("name", "3"), 
                             new PropertyValue("Inscription", "4")));
-            this.kernel.Bind<NamedSword>().ToSelf().WhenInjectedInto<Warrior>();
-            this.kernel.Bind<IJewel>().To<RedJewel>();
+            this.kernelConfiguration.Bind<NamedSword>().ToSelf().WhenInjectedInto<Warrior>();
+            this.kernelConfiguration.Bind<IJewel>().To<RedJewel>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var parent = this.kernel.Get<Warrior>();
 
@@ -233,9 +255,11 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void GetContextPreservingResolutionRootExtensionMethod()
         {
-            this.kernel.Bind<Warrior>().ToSelf();
-            this.kernel.Bind<IWeapon>().ToMethod(ctx => ctx.GetContextPreservingResolutionRoot().Get<Dagger>());
-            this.kernel.Bind<Dagger>().ToSelf().WhenInjectedInto<Warrior>();
+            this.kernelConfiguration.Bind<Warrior>().ToSelf();
+            this.kernelConfiguration.Bind<IWeapon>().ToMethod(ctx => ctx.GetContextPreservingResolutionRoot().Get<Dagger>());
+            this.kernelConfiguration.Bind<Dagger>().ToSelf().WhenInjectedInto<Warrior>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
+
             var parent = this.kernel.Get<Warrior>();
 
             parent.Weapon.Should().NotBeNull();
@@ -247,13 +271,14 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void ContextualConditions()
         {
-            this.kernel.Bind<IWeapon>().To<Sword>()
+            this.kernelConfiguration.Bind<IWeapon>().To<Sword>()
                 .When(request => request.ParentRequest.ParentRequest.Service == typeof(Town));
-            this.kernel.Bind<IWeapon>().To<NamedSword>()
+            this.kernelConfiguration.Bind<IWeapon>().To<NamedSword>()
                 .When(request => request.ParentRequest.ParentRequest.Service == typeof(Village))
                 .WithConstructorArgument("name", "Excalibur");
-            this.kernel.Bind<IWeaponFactory>().To<WeaponFactory>();
-            this.kernel.Bind<IJewel>().To<RedJewel>();
+            this.kernelConfiguration.Bind<IWeaponFactory>().To<WeaponFactory>();
+            this.kernelConfiguration.Bind<IJewel>().To<RedJewel>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var town = this.kernel.Get<Town>();
             var village = this.kernel.Get<Village>();

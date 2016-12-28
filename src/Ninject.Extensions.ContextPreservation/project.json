@@ -1,0 +1,22 @@
+﻿{
+  "dependencies": {
+    "Ninject": "4.0.0-beta-0134"
+  },
+  "frameworks": {
+    "netstandard1.3": {
+      "dependencies": {
+        "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
+        "NETStandard.Library": "1.6.0"
+      }
+    },
+    "net451": {
+
+    }
+  },
+  "buildOptions": {
+    "compile": {
+      "exclude": []
+    },
+    "define": [ "DEBUG" ]
+  }
+}
