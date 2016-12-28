@@ -1,4 +1,7 @@
-# Ninject.Extensions.ContextPreservation [![NuGet Version](http://img.shields.io/nuget/v/Ninject.Extensions.ContextPreservation.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extensions.ContextPreservation/) [![NuGet Downloads](http://img.shields.io/nuget/dt/Ninject.Extensions.ContextPreservation.svg?style=flat)](https://www.nuget.org/packages/Ninject.Extensions.ContextPreservation/)
+# Ninject.Extensions.ContextPreservation
+# [NuGet Downloads](http://darkcamperlinux.westeurope.cloudapp.azure.com:8090/feeds/darkcamper)
+
+**THIS IS A FORK FROM THE OFFICIAL PROJECT, COMPILED FOR NINJECT 4 AND NETStandard 1.3**
 
 This Ninject extension enables one to preserve contextual information pertaining to earlier requests that indirectly led to a given request in order to fulfil the following key objectives:
 - Enable more detailed tracing of Resolution failures
@@ -6,8 +9,4 @@ This Ninject extension enables one to preserve contextual information pertaining
 - Enable richer Scoping rules (e.g. being able to use Ninject.Extensions.NamedScope's InCallScope for objects created by a Factory)
 
 ## Documentation
-
  https://github.com/ninject/Ninject.Extensions.ContextPreservation/wiki
-
-## CI build status
-[![Build Status](https://teamcity.bbv.ch/app/rest/builds/buildType:(id:bt20)/statusIcon)](http://teamcity.bbv.ch/viewType.html?buildTypeId=bt20&guest=1)
