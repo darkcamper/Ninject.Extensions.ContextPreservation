@@ -33,17 +33,21 @@ namespace Ninject.Extensions.ContextPreservation
         /// <summary>
         /// The kernel used in the tests.
         /// </summary>
-        private readonly StandardKernel kernel;
+        private readonly IKernelConfiguration kernelConfiguration;
+        private IReadOnlyKernel kernel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FactoryTests"/> class.
         /// </summary>
         public FactoryTests()
         {
-            this.kernel = new StandardKernel();
-#if NO_ASSEMBLY_SCANNING
-            this.kernel.Load(new FuncModule(), new ContextPreservationModule());
-#endif
+            this.kernelConfiguration = new KernelConfiguration(new NinjectSettings()
+                {
+                    LoadExtensions = false
+                }
+            );
+            this.kernelConfiguration.Load(/*new FuncModule(),*/ new ContextPreservationModule());
+
         }
 
         /// <summary>
@@ -91,7 +95,8 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void FuncContextIsPreserved()
         {
-            this.kernel.Bind<IWeapon>().To<Dagger>().WhenInjectedInto<FuncFactory>();
+            this.kernelConfiguration.Bind<IWeapon>().To<Dagger>().WhenInjectedInto<FuncFactory>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var factory = this.kernel.Get<FuncFactory>();
             var weapon = factory.CreateWeapon();
@@ -106,7 +111,8 @@ namespace Ninject.Extensions.ContextPreservation
         [Fact]
         public void LazyContextIsPreserved()
         {
-            this.kernel.Bind<IWeapon>().To<Dagger>().WhenInjectedInto<FuncFactory>();
+            this.kernelConfiguration.Bind<IWeapon>().To<Dagger>().WhenInjectedInto<FuncFactory>();
+            kernel = kernelConfiguration.BuildReadonlyKernel();
 
             var factory = this.kernel.Get<FuncFactory>();
             var weapon = factory.GetLazyWeapon();

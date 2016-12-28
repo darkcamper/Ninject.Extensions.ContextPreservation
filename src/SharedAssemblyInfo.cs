@@ -12,12 +12,11 @@ using System.Runtime.InteropServices;
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: AssemblyProductAttribute("Ninject.Extensions.ContextPreservation: Context preservation extension for Ninjec" +
-    "t")]
+[assembly: AssemblyProductAttribute("Ninject.Extensions.ContextPreservation: Context preservation extension for Ninject")]
 [assembly: AssemblyCompanyAttribute("bbv Software Services AG")]
 [assembly: AssemblyCopyrightAttribute("Copyright © 2009-2011 bbv Software Services AG and contributors")]
-[assembly: AssemblyVersionAttribute("2.3.0.0")]
-[assembly: AssemblyFileVersionAttribute("2.3.0.0")]
+[assembly: AssemblyVersionAttribute("4.0.0.0")]
+[assembly: AssemblyFileVersionAttribute("4.0.0.0")]
 [assembly: ComVisibleAttribute(false)]
 [assembly: CLSCompliantAttribute(true)]
 

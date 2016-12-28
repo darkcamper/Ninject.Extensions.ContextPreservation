@@ -1,4 +1,18 @@
 ﻿{
+  "name": "DC.Ninject.Extensions.ContextPreservation",
+  "version": "4.0.0-beta1",
+  "packOptions": {
+    "iconUrl": "https://github.com/ninject/ninject/raw/master/logos/Ninject-Logo32.png",
+    "tags": [ "Ninject ioc di" ],
+    "projectUrl": "http://www.ninject.org",
+    "authors":  "Ninject Project Contributors" ,
+    "requireLicenseAcceptance": true,
+    "licenseUrl": "https://github.com/darkcamper/Ninject.Extensions.ContextPreservation/raw/master-Netstandard/LICENSE.txt",
+    "releaseNotes": "https://github.com/darkcamper/Ninject.Extensions.ContextPreservation/blob/master-Netstandard/README.md"
+  },
+  
+  "description": "Ninject extension that preserves the context over factories (the parent of the new request is the factory request) for Ninject 4",
+  "language": "en-US",
   "dependencies": {
     "Ninject": "4.0.0-beta-0134"
   },
@@ -14,8 +28,10 @@
     }
   },
   "buildOptions": {
+    "outputName": "Ninject.Extensions.ContextPreservation",
     "compile": {
-      "exclude": []
+      "exclude": [],
+      "include": [ "../SharedAssemblyInfo.cs" ]
     },
     "define": [ "DEBUG" ]
   }
